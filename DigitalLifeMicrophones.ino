@@ -4,7 +4,8 @@ int const num_speakers = sizeof(speaker_list) / sizeof(int);
 unsigned int speaker_histogram[num_speakers];
 unsigned long noise_start_time = 0;
 bool in_noise = false;
-unsigned long const noise_duration = 500;
+unsigned long const noise_duration = 250;
+int const noise_threshold = 500;
 
 void setup() {
   memset(speaker_histogram, 0, sizeof(speaker_histogram));
@@ -41,30 +42,31 @@ void loop() {
   int max_val = 0;
   int max_idx = max_idx_and_val(speaker_values, num_speakers, & max_val);
 
-  if (max_val > 500) {
+  unsigned long cur_time = millis();
+
+  if (max_val > noise_threshold) {
     speaker_histogram[max_idx] += 1;
 
-    unsigned long cur_time = millis();
-
-    if (in_noise) {
-      if (cur_time - noise_start_time > noise_duration) {
-        // End noise and report the most commonly activated microphone
-        int max_noise_count = 0; // Represents the count of times that a speaker reported a volume >500
-        int max_noise_idx = max_idx_and_val(speaker_histogram, num_speakers, & max_noise_count);
-
-        // reset the histogram
-        memset(speaker_histogram, 0, sizeof(speaker_histogram));
-        in_noise = false; // not in a noise anymore
-
-        Serial.println(max_noise_idx); // report the speaker that got most of the noise
-      } else {
-        // Continue the noise
-      }
-    } else {
+    if (!in_noise) {
       // Start a noise
       in_noise = true;
       noise_start_time = cur_time;
     }
   }
+
+  if (in_noise && cur_time - noise_start_time > noise_duration) {
+    // End noise and report the most commonly activated microphone
+    int max_noise_count = 0; // Represents the count of times that a speaker reported a volume >500
+    int max_noise_idx = max_idx_and_val(speaker_histogram, num_speakers, & max_noise_count);
+
+    // reset the histogram
+    memset(speaker_histogram, 0, sizeof(speaker_histogram));
+    in_noise = false; // not in a noise anymore
+
+    Serial.println(max_noise_idx); // report the speaker that got most of the noise
+  }
 }
+
+
+
 
