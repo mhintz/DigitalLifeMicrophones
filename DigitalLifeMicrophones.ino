@@ -63,10 +63,6 @@ void loop() {
     memset(speaker_histogram, 0, sizeof(speaker_histogram));
     in_noise = false; // not in a noise anymore
 
-    Serial.println(max_noise_idx); // report the speaker that got most of the noise
+    Serial.write((uint8_t) max_noise_idx); // report the speaker that got most of the noise
   }
 }
-
-
-
-
