@@ -64,6 +64,6 @@ void loop() {
     in_noise = false; // not in a noise anymore
 
     Serial.write((uint8_t) max_noise_idx); // report the speaker that got most of the noise
-    Serial.println((uint8_t) max_noise_idx);
+//    Serial.println((uint8_t) max_noise_idx);
   }
 }
