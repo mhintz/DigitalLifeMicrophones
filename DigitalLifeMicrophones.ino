@@ -4,8 +4,8 @@ int const num_speakers = sizeof(speaker_list) / sizeof(int);
 unsigned int speaker_histogram[num_speakers];
 unsigned long noise_start_time = 0;
 bool in_noise = false;
-unsigned long const noise_duration = 250;
-int const noise_threshold = 500;
+unsigned long const noise_duration = 150;
+int const noise_threshold = 650;
 
 void setup() {
   memset(speaker_histogram, 0, sizeof(speaker_histogram));
@@ -64,5 +64,6 @@ void loop() {
     in_noise = false; // not in a noise anymore
 
     Serial.write((uint8_t) max_noise_idx); // report the speaker that got most of the noise
+    Serial.println((uint8_t) max_noise_idx);
   }
 }
