@@ -4,8 +4,8 @@ int const num_speakers = sizeof(speaker_list) / sizeof(int);
 unsigned int speaker_histogram[num_speakers];
 unsigned long noise_start_time = 0;
 bool in_noise = false;
-unsigned long const noise_duration = 175;
-int const noise_threshold = 735;
+unsigned long const noise_duration = 150;
+int const noise_threshold = 755;
 
 void setup() {
   memset(speaker_histogram, 0, sizeof(speaker_histogram));
@@ -35,36 +35,35 @@ int max_idx_and_val(unsigned int * vals, int len, int * ret_val) {
 
 void loop() {
   unsigned int speaker_values[num_speakers];
-  for (int i = 0; i < num_speakers; i++) {
-    speaker_values[i] = analogRead(speaker_list[i]);
-  }
-
-  int max_val = 0;
-  int max_idx = max_idx_and_val(speaker_values, num_speakers, & max_val);
-
   unsigned long cur_time = millis();
 
-  if (max_val > noise_threshold) {
-    speaker_histogram[max_idx] += 1;
+  for (int i = 0; i < num_speakers; i++) {
+    speaker_values[i] = analogRead(speaker_list[i]);
 
-    if (!in_noise) {
-      // Start a noise
-      in_noise = true;
-      noise_start_time = cur_time;
+    if (speaker_values[i] > noise_threshold) {
+      speaker_histogram[i] += 1;
+
+      if (!in_noise) {
+        in_noise = true;
+        noise_start_time = cur_time;
+      }
     }
   }
 
   if (in_noise && cur_time - noise_start_time > noise_duration) {
     // End noise and report the most commonly activated microphone
-    int max_noise_count = 0; // Represents the count of times that a speaker reported a volume >500
+    int max_noise_count = 0; // Represents the count of times that a speaker reported a volume higher than the threshold
     int max_noise_idx = max_idx_and_val(speaker_histogram, num_speakers, & max_noise_count);
 
     // reset the histogram
     memset(speaker_histogram, 0, sizeof(speaker_histogram));
     in_noise = false; // not in a noise anymore
 
-    Serial.write((uint8_t) max_noise_idx); // report the speaker that got most of the noise
-//    Serial.println((uint8_t) max_noise_idx);
+    // Be sure that the noises are "significant"
+    if (max_noise_count >= 3) {
+      Serial.write((uint8_t) max_noise_idx); // report the speaker that got most of the noise
+  //    Serial.println((uint8_t) max_noise_idx);
+    }
   }
 }
 
