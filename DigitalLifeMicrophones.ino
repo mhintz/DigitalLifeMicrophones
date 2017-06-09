@@ -4,8 +4,8 @@ int const num_speakers = sizeof(speaker_list) / sizeof(int);
 unsigned int speaker_histogram[num_speakers];
 unsigned long noise_start_time = 0;
 bool in_noise = false;
-unsigned long const noise_duration = 150;
-int const noise_threshold = 755;
+unsigned long const noise_duration = 100;
+int const noise_threshold = 800;
 
 void setup() {
   memset(speaker_histogram, 0, sizeof(speaker_histogram));
